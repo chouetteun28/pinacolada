@@ -1,5 +1,3 @@
-import av
-import av.datasets
 import pytube
 import os
 import json
@@ -74,50 +72,15 @@ class AssetDatabase:
                 "Resolution: " + self.assets[id]["resolution"] + "\n" + 
                 "FPS: " + str(self.assets[id]["fps"]))
 
-class VideoLoader:
-    def __init__(self, id, db):
-        self.db = db
-        self.id = id
-        self.video_path = "./assets/" + id + ".mp4"
-        self.container = av.container.open(self.video_path)
-        self.frameNum = 0
-        self.frame = None
-        self.stream = self.container.streams.video[0]
-        self.total_frames = self.stream.frames
-        self.seek(0)
+    def getVideoPath(self, id):
+        return "./assets/video/" + id + ".mp4"
 
-    def __del__(self):
-        self.container.close()
+    def getAudioPath(self, id):
+        return "./assets/audio/" + id + ".mp4"
 
-    def iterFrames(self):
-        for packet in self.container.demux(self.stream):
-            if packet.dts is None:
-                continue
-            for frame in packet.decode():
-                yield frame
+# execute only from this file
+if __name__ == "__main__":
+    asset = AssetDatabase()
 
-    def loadFrame(self, frameNum=None):
-        if frameNum is not None:
-            self.seek(frameNum)
-        try:
-            frame = next(self.iter)
-        except StopIteration:
-            self.end = True
-            return None
-        self.frameNum += 1
-        self.original_frame = frame.to_ndarray(format='bgr24')
-    def seek(self, frame):
-        pts = int(frame * self.stream.duration / self.stream.frames)
-        self.container.seek(pts, stream=self.stream)
-        for j, f in enumerate(self.iterFrames()):
-            if f.pts >= pts - 1:
-                break
-        self.end = False
-        self.frameNum = frame
-        self.iter = iter(self.iterFrames())
-        
-        
-asset = AssetDatabase()
-
-asset.add("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "The Sign", "Ace of Base")
-asset.add("https://www.youtube.com/watch?v=dQw4Q", "The Sign", "Ace of Base")
+    asset.add("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "The Sign", "Ace of Base")
+    asset.add("https://www.youtube.com/watch?v=dQw4Q", "The Sign", "Ace of Base")
