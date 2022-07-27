@@ -1,14 +1,18 @@
-from collections import namedtuple
 import av
+import av.datasets
 import pytube
 import os
 import json
-from collections import namedtuple
+from matplotlib import pyplot as plt
      
 class AssetDatabase:
     def __init__(self):
         if not os.path.isdir("./assets/"):
             os.mkdir("./assets/")
+        if not os.path.isdir("./assets/audio/"):
+            os.mkdir("./assets/audio/")
+        if not os.path.isdir("./assets/video/"):
+            os.mkdir("./assets/video/")
 
         if not os.path.isfile("./assets/assets.json"):
             with open("./assets/assets.json", "w") as f:
@@ -23,7 +27,7 @@ class AssetDatabase:
         id = url.split("=")[1]
         if id in self.assets:
             print("--------------------------------\nError: Video already exists in database\n")
-            self.log_assets(id)
+            self.logAssets(id)
         else:
             try:
                 yt = pytube.YouTube(url)
@@ -34,12 +38,14 @@ class AssetDatabase:
                 return
             
             stream = yt.streams.filter(file_extension='mp4').order_by('resolution').desc().first()
+            print(stream)
+            audiostream = yt.streams.filter(only_audio=True, file_extension='mp4').first()
 
             if stream is None:
                 print("\nError: No video found\n")
                 return
             
-            if stream.download(output_path = "./assets/", filename = url.split("=")[1]+".mp4"):
+            if stream.download(output_path = "./assets/video/", filename = url.split("=")[1]+".mp4") and audiostream.download(output_path = "./assets/audio/", filename = url.split("=")[1]+".mp4"):
                 self.addToDB( url, artist, song, stream, yt)
             else:
                 print("\nError: Video download failed, \n" + "URL: " + url + "\n")
@@ -58,9 +64,9 @@ class AssetDatabase:
         with open("./assets/assets.json", "w") as f:
             json.dump(self.assets, f)
         print("--------------------------------\nVideo added to database\n")
-        self.log_assets(id)
+        self.logAssets(id)
     
-    def log_assets(self, id):
+    def logAssets(self, id):
         print("URL: " + "https://www.youtube.com/watch?v=" + id + "\n" + 
                 "Artist: " + self.assets[id]["artist"] + "\n" + 
                 "Song: " + self.assets[id]["song"] + "\n" + 
@@ -73,26 +79,24 @@ class VideoLoader:
         self.db = db
         self.id = id
         self.video_path = "./assets/" + id + ".mp4"
-        self.video_path = video_path
         self.container = av.container.open(self.video_path)
         self.frameNum = 0
         self.frame = None
-        self.original_frame = None
         self.stream = self.container.streams.video[0]
         self.total_frames = self.stream.frames
         self.seek(0)
 
-    def iter_frames(self):
+    def __del__(self):
+        self.container.close()
+
+    def iterFrames(self):
         for packet in self.container.demux(self.stream):
             if packet.dts is None:
                 continue
             for frame in packet.decode():
                 yield frame
 
-    def __del__(self):
-        self.container.close()
-
-    def load_frame(self, frameNum=None):
+    def loadFrame(self, frameNum=None):
         if frameNum is not None:
             self.seek(frameNum)
         try:
@@ -105,12 +109,12 @@ class VideoLoader:
     def seek(self, frame):
         pts = int(frame * self.stream.duration / self.stream.frames)
         self.container.seek(pts, stream=self.stream)
-        for j, f in enumerate(self.iter_frames()):
+        for j, f in enumerate(self.iterFrames()):
             if f.pts >= pts - 1:
                 break
         self.end = False
         self.frameNum = frame
-        self.iter = iter(self.iter_frames())
+        self.iter = iter(self.iterFrames())
         
         
 asset = AssetDatabase()
