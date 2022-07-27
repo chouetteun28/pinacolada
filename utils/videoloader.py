@@ -4,7 +4,7 @@ import cv2
 
 db = downloader.AssetDatabase()
 
-id = list(db.assets.keys())[0]
+id = list(db.assets.keys())[1]
 
 stream = CamGear(
     source = db.getVideoPath(id),
