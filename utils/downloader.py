@@ -1,10 +1,15 @@
+from collections import namedtuple
 import av
 import pytube
 import os
 import json
-        
+from collections import namedtuple
+     
 class AssetDatabase:
     def __init__(self):
+        if not os.path.isdir("./assets/"):
+            os.mkdir("./assets/")
+
         if not os.path.isfile("./assets/assets.json"):
             with open("./assets/assets.json", "w") as f:
                 json.dump({}, f)
@@ -13,46 +18,61 @@ class AssetDatabase:
             with open("./assets/assets.json", "r") as f:
                 self.assets = json.load(f)
         self.length = len(self.assets)
-    def add(self, id, title, artist, song, duration, resolution):
+
+    def add(self, url, song, artist):
+        id = url.split("=")[1]
+        if id in self.assets:
+            print("--------------------------------\nError: Video already exists in database\n")
+            self.log_assets(id)
+        else:
+            try:
+                yt = pytube.YouTube(url)
+            except:
+                print("--------------------------------\nError: Invalid URL\n")
+                print("URL: " + url + "\n")
+
+                return
+            
+            stream = yt.streams.filter(file_extension='mp4').order_by('resolution').desc().first()
+
+            if stream is None:
+                print("\nError: No video found\n")
+                return
+            
+            if stream.download(output_path = "./assets/", filename = url.split("=")[1]+".mp4"):
+                self.addToDB( url, artist, song, stream, yt)
+            else:
+                print("\nError: Video download failed, \n" + "URL: " + url + "\n")
+                return
+
+    def addToDB(self, url, artist, song, stream, yt):
+        id = url.split("=")[1]
         self.assets[id] = {
-            "title": title,
             "artist": artist,
             "song": song,
-            "duration": duration,
-            "resolution": resolution
+            "length": yt.length,
+            "resolution": stream.resolution,
+            "fps": stream.fps
         }
         self.length += 1
         with open("./assets/assets.json", "w") as f:
             json.dump(self.assets, f)
-
-class Video:
-    def __init__(self, asset, url, artist, song):
-        try:
-            self.yt = pytube.YouTube(url)
-        except:
-            print("\nError: Invalid URL\n")
-            exit()
-        self.asset = asset
-        self.title = self.yt.title
-        self.id = url.split("=")[1]
-        self.song = song
-        self.artist = artist
-        self.duration = self.yt.length
-        self.download()
+        print("--------------------------------\nVideo added to database\n")
+        self.log_assets(id)
     
-    def download(self):
-        stream = self.yt.streams.filter(file_extension='mp4').order_by('resolution').desc().first()
-        self.resolution = stream.resolution
-        print(stream)
-        if stream.download(output_path = "./assets/", filename = self.id+".mp4"):
-            self.asset.add(self.id, self.title, self.artist, self.song, self.duration, self.resolution)
-    
-    def initVideoLoader(self):
-        self.videoLoader = VideoLoader("./assets/", self.id+".mp4")
-
+    def log_assets(self, id):
+        print("URL: " + "https://www.youtube.com/watch?v=" + id + "\n" + 
+                "Artist: " + self.assets[id]["artist"] + "\n" + 
+                "Song: " + self.assets[id]["song"] + "\n" + 
+                "Duration: " + str(self.assets[id]["length"]) + "\n" + 
+                "Resolution: " + self.assets[id]["resolution"] + "\n" + 
+                "FPS: " + str(self.assets[id]["fps"]))
 
 class VideoLoader:
-    def __init__(self, video_path):
+    def __init__(self, id, db):
+        self.db = db
+        self.id = id
+        self.video_path = "./assets/" + id + ".mp4"
         self.video_path = video_path
         self.container = av.container.open(self.video_path)
         self.frameNum = 0
@@ -95,5 +115,5 @@ class VideoLoader:
         
 asset = AssetDatabase()
 
-Video(asset ,"https://www.youtube.com/watch?v=61QSHrOuGEA", "artist", "song")
-Video(asset ,"https://www.youtube.com/watch?v=jhFDyDgMVUI", "artist", "song")
+asset.add("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "The Sign", "Ace of Base")
+asset.add("https://www.youtube.com/watch?v=dQw4Q", "The Sign", "Ace of Base")
