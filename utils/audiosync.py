@@ -25,12 +25,13 @@ def avg_pool(arr: np.ndarray):
     return np.average(arr[:total_steps].reshape(-1, KERNEL_SIZE), axis=1)
 
 
-def syncAudio(artist, song):
+def syncAudio(artist:str, song:str, plot:bool=False):
     """Sync the audio of the video with the audio of the song
 
     Args:
         artist (str): Music artist(without space, lowercase)
         song (str): Name of the song(without space, lowercase)
+        plot (bool, optional): if the plot should be shown. Defaults to False.
 
     Returns:
         void: None
@@ -58,16 +59,18 @@ def syncAudio(artist, song):
         original = original - np.average(original)
         sound = sound - np.average(sound)
 
-        # plot_amplitude(original)
-        # plt.subplot(2, 1, 1)
-        # plt.plot(np.linspace(0.0, POOL_TIME, original.shape[0]),original)
-        # plt.subplot(2, 1, 2)
-        # plt.plot(np.linspace(0.0, POOL_TIME, sound.shape[0]),sound)
-        # plt.show()
+        if plot:
+            plt.subplot(2, 1, 1)
+            plt.plot(np.linspace(0.0, POOL_TIME, original.shape[0]),original)
+            plt.subplot(2, 1, 2)
+            plt.plot(np.linspace(0.0, POOL_TIME, sound.shape[0]),sound)
+            plt.show()
 
         corr = np.correlate(original, sound, mode='full')
-        # plt.plot(np.linspace(0, POOL_TIME, int(POOL_TIME*44100/KERNEL_SIZE)), corr[0:original.shape[0]])
-        # plt.show()
+
+        if plot:
+            plt.plot(np.linspace(-POOL_TIME, POOL_TIME, int(POOL_TIME*SAMPLE_FREQ*2/KERNEL_SIZE)-1), corr)
+            plt.show()
 
         delta_t = POOL_TIME - np.argmax(corr)*KERNEL_SIZE/44100
         db.set_offset(video, delta_t)
@@ -75,4 +78,4 @@ def syncAudio(artist, song):
 
 
 if __name__ == "__main__":
-    syncAudio("gidle", "tomboy")
+    syncAudio("gidle", "tomboy", False)
