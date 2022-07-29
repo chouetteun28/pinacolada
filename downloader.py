@@ -64,6 +64,7 @@ def main(asset):
         else:
             break
     if asset.add(url, song, artist) == 0:
+        audiosync.syncAudio(artist, song)
         return 0
 
 

@@ -45,6 +45,8 @@ def syncAudio(artist:str, song:str, plot:bool=False):
         print("[AudioSync] No audio found for this song")
         return -1
     for video in videos:
+        if db.assets[video]["offset"] != -1:
+            continue
         original = pydub.AudioSegment.from_file(
             db.get_audio_path(audio)).split_to_mono()
         sound = pydub.AudioSegment.from_file(
