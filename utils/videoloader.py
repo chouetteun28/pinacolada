@@ -1,13 +1,15 @@
-import downloader
+import utils.database as database
 from vidgear.gears import CamGear
 import cv2
 
-db = downloader.AssetDatabase()
+db = database.AssetDatabase()
 
 id = list(db.assets.keys())[1]
 
+videos, audio = db.filter_asset("aespa", "savage")
+
 stream = CamGear(
-    source = db.getVideoPath(id),
+    source=db.get_video_path(videos[0]),
 ).start()
 
 while True:
