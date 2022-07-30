@@ -1,8 +1,8 @@
-import utils.database as database
+import utils.assetdatabase as assetdatabase
 from vidgear.gears import CamGear
 import cv2
 
-db = database.AssetDatabase()
+db = assetdatabase.AssetDatabase()
 
 id = list(db.assets.keys())[1]
 

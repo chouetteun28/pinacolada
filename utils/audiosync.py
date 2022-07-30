@@ -1,7 +1,7 @@
 from audioop import avg
 from multiprocessing import pool
 import matplotlib
-import utils.database as database
+import utils.assetdatabase as assetdatabase
 import pydub
 import pydub.playback
 import array
@@ -25,18 +25,19 @@ def avg_pool(arr: np.ndarray):
     return np.average(arr[:total_steps].reshape(-1, KERNEL_SIZE), axis=1)
 
 
-def syncAudio(artist:str, song:str, plot:bool=False):
+def syncAudio(artist:str, song:str, plot:bool=False, skip_existing:bool=True):
     """Sync the audio of the video with the audio of the song
 
     Args:
         artist (str): Music artist(without space, lowercase)
         song (str): Name of the song(without space, lowercase)
         plot (bool, optional): if the plot should be shown. Defaults to False.
+        skip_existing (bool, optional): if the video should be skipped if it already exists. Defaults to True.
 
     Returns:
         void: None
     """
-    db = database.AssetDatabase()
+    db = assetdatabase.AssetDatabase()
     videos, audio = db.filter_asset(artist, song)
     if len(videos) == 0:
         print("[AudioSync] No videos found for this song")
@@ -45,9 +46,8 @@ def syncAudio(artist:str, song:str, plot:bool=False):
         print("[AudioSync] No audio found for this song")
         return -1
     for video in videos:
-        if db.assets[video]["offset"] != -1:
+        if (db.assets[video]["offset"] != -1) and skip_existing:
             continue
-            #pass
         original = pydub.AudioSegment.from_file(
             db.get_audio_path(audio)).split_to_mono()
         sound = pydub.AudioSegment.from_file(
@@ -81,4 +81,4 @@ def syncAudio(artist:str, song:str, plot:bool=False):
 
 
 if __name__ == "__main__":
-    syncAudio("ive", "lovedive", True)
+    syncAudio("ive", "lovedive", True, False)

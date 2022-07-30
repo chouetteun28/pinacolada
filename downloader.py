@@ -1,4 +1,4 @@
-import utils.database as database
+import utils.assetdatabase as assetdatabase
 import utils.audiosync as audiosync
 
 
@@ -70,7 +70,7 @@ def main(asset):
 
 # execute only from this file
 if __name__ == "__main__":
-    asset = database.AssetDatabase()
+    asset = assetdatabase.AssetDatabase()
     while 1:
         if main(asset) == 0:
             break
