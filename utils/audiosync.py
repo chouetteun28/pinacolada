@@ -9,8 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 SAMPLE_FREQ = 44100
-KERNEL_SIZE = 500
-POOL_TIME = 100
+KERNEL_SIZE = 200
+POOL_TIME = 150
 
 
 def avg_pool(arr: np.ndarray):
@@ -47,6 +47,7 @@ def syncAudio(artist:str, song:str, plot:bool=False):
     for video in videos:
         if db.assets[video]["offset"] != -1:
             continue
+            #pass
         original = pydub.AudioSegment.from_file(
             db.get_audio_path(audio)).split_to_mono()
         sound = pydub.AudioSegment.from_file(
@@ -80,4 +81,4 @@ def syncAudio(artist:str, song:str, plot:bool=False):
 
 
 if __name__ == "__main__":
-    syncAudio("gidle", "tomboy", False)
+    syncAudio("ive", "lovedive", True)

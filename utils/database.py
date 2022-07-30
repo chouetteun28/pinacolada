@@ -165,6 +165,17 @@ class AssetDatabase:
         """
         return "./assets/audio/" + id + ".mp4"
 
+    def get_offset(self, id: str):
+        """get the offset of the video
+
+        Args:
+            id (str): id of the video
+
+        Returns:
+            int: offset of the video
+        """
+        return self.assets[id]["offset"]
+
     def filter_asset(self, artist: str, song: str) -> Tuple[list[str], str]:
         """filters the database for a specific artist and song
 
@@ -176,6 +187,7 @@ class AssetDatabase:
             tuple(list, str): (id of audio, list of id of the videos)
         """
         videos = []
+        audio = None
         for id in self.assets:
             if self.assets[id]["artist"] == artist and self.assets[id]["song"] == song:
                 if self.assets[id]["type"] == "video":
