@@ -1,5 +1,5 @@
-import utils.assetdatabase as assetdatabase
-import utils.audiosync as audiosync
+import src.assetdatabase as assetdatabase
+import src.audiosync as audiosync
 
 
 def main(asset):
