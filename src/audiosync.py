@@ -25,7 +25,7 @@ def avg_pool(arr: np.ndarray):
     return np.average(arr[:total_steps].reshape(-1, KERNEL_SIZE), axis=1)
 
 
-def syncAudio(artist:str, song:str, plot:bool=False, skip_existing:bool=True):
+def syncAudio(artist: str, song: str, plot: bool = False, skip_existing: bool = True):
     """Sync the audio of the video with the audio of the song
 
     Args:
@@ -64,15 +64,16 @@ def syncAudio(artist:str, song:str, plot:bool=False, skip_existing:bool=True):
 
         if plot:
             plt.subplot(2, 1, 1)
-            plt.plot(np.linspace(0.0, POOL_TIME, original.shape[0]),original)
+            plt.plot(np.linspace(0.0, POOL_TIME, original.shape[0]), original)
             plt.subplot(2, 1, 2)
-            plt.plot(np.linspace(0.0, POOL_TIME, sound.shape[0]),sound)
+            plt.plot(np.linspace(0.0, POOL_TIME, sound.shape[0]), sound)
             plt.show()
 
         corr = np.correlate(original, sound, mode='full')
 
         if plot:
-            plt.plot(np.linspace(-POOL_TIME, POOL_TIME, int(POOL_TIME*SAMPLE_FREQ*2/KERNEL_SIZE)-1), corr)
+            plt.plot(np.linspace(-POOL_TIME, POOL_TIME,
+                     int(POOL_TIME*SAMPLE_FREQ*2/KERNEL_SIZE)-1), corr)
             plt.show()
 
         delta_t = POOL_TIME - np.argmax(corr)*KERNEL_SIZE/44100

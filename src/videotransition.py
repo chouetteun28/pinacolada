@@ -8,21 +8,24 @@ Only works with 30fps videos
 """
 FPS = 30
 
+
 class VideoTransition:
-    def __init__(self, artist:str, song:str):
+    def __init__(self, artist: str, song: str):
         db = assetdatabase.AssetDatabase()
         videos, audio = db.filter_asset(artist, song)
         self.videos = videos
         self.audio = audio
         self.duration = db.assets[self.audio]["length"]
-        self.streams = [CamGear(source=db.get_video_path(id)).start() for id in videos ]
+        self.streams = [CamGear(source=db.get_video_path(id)).start()
+                        for id in videos]
         self.frames = [None for _ in videos]
         self.frame_nums = [0 for _ in videos]
         self.offsets = [db.get_offset(id) for id in videos]
         self.is_loading = [False for _ in videos]
-        self.resolution  = int(db.get_resolution(videos[0]).replace('p', ''))
+        self.resolution = int(db.get_resolution(videos[0]).replace('p', ''))
         self.resolution = (self.resolution, self.resolution // 9 * 16)
-        self.placeholder = np.zeros((self.resolution[0], self.resolution[1], 3), dtype=np.uint8)
+        self.placeholder = np.zeros(
+            (self.resolution[0], self.resolution[1], 3), dtype=np.uint8)
         self.time = 0
 
         # match syncronization of videos
@@ -32,8 +35,8 @@ class VideoTransition:
                     self.get_frame(i)
             elif self.offsets[i] < 0:
                 self.frames[i] = self.placeholder
-        
-    def get_frame(self, i:int):
+
+    def get_frame(self, i: int):
         if self.time + self.offsets[i] > 0:
             self.frame_nums[i] += 1
             frame = self.streams[i].read()
@@ -42,7 +45,7 @@ class VideoTransition:
             return frame, True
         return self.placeholder, True
 
-    def display_frame(self, id:str=None, frame:np.ndarray=None):
+    def display_frame(self, id: str = None, frame: np.ndarray = None):
         """Display frames in a opencv window
 
         Args:
@@ -70,22 +73,22 @@ class VideoTransition:
                 return False
             return True
 
-
     def update_all_frames(self):
         self.time += 1 / FPS
         for i in range(len(self.videos)):
             new_frame, fetched = self.get_frame(i)
-            if fetched:  
+            if fetched:
                 self.frames[i] = new_frame
         if self.time > self.duration:
             return False
         return True
-    
+
     def close(self):
         for stream in self.streams:
             stream.stop()
         cv2.destroyAllWindows()
         return True
+
 
 if __name__ == "__main__":
     vt = VideoTransition("aespa", "savage")

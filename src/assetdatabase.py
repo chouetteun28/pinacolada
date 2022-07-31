@@ -6,6 +6,7 @@ import sys
 
 DOWNLOAD_RESOLUTION = "480p"
 
+
 class AssetDatabase:
     def __init__(self):
         """
@@ -174,7 +175,7 @@ class AssetDatabase:
             int: offset of the video
         """
         return self.assets[id]["offset"]
-    
+
     def get_resolution(self, id: str):
         """get the resolution of the video
 
