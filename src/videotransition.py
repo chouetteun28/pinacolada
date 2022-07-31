@@ -1,7 +1,8 @@
-import src.assetdatabase as assetdatabase
-from vidgear.gears import CamGear
 import cv2
 import numpy as np
+from vidgear.gears import CamGear
+
+import src.assetdatabase as assetdatabase
 
 """
 Only works with 30fps videos

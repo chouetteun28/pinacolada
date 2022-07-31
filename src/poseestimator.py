@@ -20,7 +20,7 @@ class PoseEstimator:
         if self.iffacemesh:
             self.mp_face_mesh = mp.solutions.face_mesh
             self.face_mesh = self.mp_face_mesh.FaceMesh(
-                max_num_faces=5, refine_landmarks=True, min_detection_confidence=0.3, min_tracking_confidence=0.5)
+                max_num_faces=5, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5)
         if self.iffacedetection:
             self.mp_face_detection = mp.solutions.face_detection
             self.face_detection = self.mp_face_detection.FaceDetection(
