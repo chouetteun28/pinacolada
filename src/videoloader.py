@@ -6,7 +6,7 @@ db = assetdatabase.AssetDatabase()
 
 id = list(db.assets.keys())[1]
 
-videos, audio = db.filter_asset("ive", "lovedive")
+videos, audio = db.filter_asset("kepler", "wadada")
 
 stream = CamGear(
     source=db.get_video_path(videos[0]),

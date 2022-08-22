@@ -3,8 +3,8 @@ import src.audiosync as audiosync
 
 
 def main(asset):
-    url = input("Enter URL: ")
     while 1:
+        url = input("Enter URL: ")
         if url in asset.assets:
             print(
                 "--------------------------------\nError: Video already exists in database\n")

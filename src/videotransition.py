@@ -22,12 +22,12 @@ class VideoTransition:
         self.frames = [None for _ in videos]
         self.frame_nums = [0 for _ in videos]
         self.offsets = [db.get_offset(id) for id in videos]
-        self.is_loading = [False for _ in videos]
         self.resolution = int(db.get_resolution(videos[0]).replace('p', ''))
         self.resolution = (self.resolution, self.resolution // 9 * 16)
         self.placeholder = np.zeros(
             (self.resolution[0], self.resolution[1], 3), dtype=np.uint8)
         self.time = 0
+        self.global_index = 0
 
         # match syncronization of videos
         for i in range(len(self.videos)):
@@ -46,7 +46,7 @@ class VideoTransition:
             return frame, True
         return self.placeholder, True
 
-    def display_frame(self, id: str = None, frame: np.ndarray = None):
+    def display_frame(self, index: int = None, frame: np.ndarray = None):
         """Display frames in a opencv window
 
         Args:
@@ -56,30 +56,32 @@ class VideoTransition:
         Returns:
             bool: True if the window is still open, False if the window is closed (q pressed)
         """
-        if id is None and frame is None:
+        if index is None and frame is None:
             for i in range(len(self.videos)):
                 cv2.imshow(self.videos[i], self.frames[i])
                 if cv2.waitKey(1) == ord('q'):
                     return False
             return True
         elif frame is None:
-            i = self.videos.index(id)
-            cv2.imshow(id, self.frames[i])
+            cv2.imshow("Hello", self.frames[index])
             if cv2.waitKey(1) == ord('q'):
                 return False
             return True
         else:
-            cv2.imshow(id, frame)
+            cv2.imshow("Hello", frame)
             if cv2.waitKey(1) == ord('q'):
                 return False
             return True
 
     def update_all_frames(self):
         self.time += 1 / FPS
+        self.global_index += 1
         for i in range(len(self.videos)):
             new_frame, fetched = self.get_frame(i)
             if fetched:
                 self.frames[i] = new_frame
+            if not fetched:
+                self.frames[i] = self.placeholder
         if self.time > self.duration:
             return False
         return True
@@ -92,11 +94,12 @@ class VideoTransition:
 
 
 if __name__ == "__main__":
-    vt = VideoTransition("aespa", "savage")
+    vt = VideoTransition("newjeans", "attention")
     while True:
         if not vt.update_all_frames():
             break
-        if not vt.display_frame(vt.videos[0], vt.frames[0]):
+        # if not vt.display_frame(vt.videos[0], vt.frames[0]):
+        if not vt.display_frame():
             break
     print("Done")
     vt.close()

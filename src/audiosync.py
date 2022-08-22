@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 SAMPLE_FREQ = 44100
 KERNEL_SIZE = 200
-POOL_TIME = 150
+POOL_TIME = 120
 
 
 def avg_pool(arr: np.ndarray):
@@ -22,6 +22,7 @@ def avg_pool(arr: np.ndarray):
     total_steps = POOL_TIME * SAMPLE_FREQ
     steps = total_steps // KERNEL_SIZE
     total_steps = steps * KERNEL_SIZE
+    print(total_steps)
     return np.average(arr[:total_steps].reshape(-1, KERNEL_SIZE), axis=1)
 
 

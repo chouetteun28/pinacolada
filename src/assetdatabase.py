@@ -4,7 +4,7 @@ import os
 import json
 import sys
 
-DOWNLOAD_RESOLUTION = "480p"
+DOWNLOAD_RESOLUTION = "720p"
 
 
 class AssetDatabase:

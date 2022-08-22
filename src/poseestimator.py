@@ -1,8 +1,11 @@
 import mediapipe as mp
+from psutil import cpu_percent
 import src.videotransition as videotransition
 import cv2
 import torch
 import numpy as np
+import cProfile
+import pstats
 
 
 class PoseEstimator:
@@ -20,7 +23,7 @@ class PoseEstimator:
         if self.iffacemesh:
             self.mp_face_mesh = mp.solutions.face_mesh
             self.face_mesh = self.mp_face_mesh.FaceMesh(
-                max_num_faces=5, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+                max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.7, min_tracking_confidence=0.5)
         if self.iffacedetection:
             self.mp_face_detection = mp.solutions.face_detection
             self.face_detection = self.mp_face_detection.FaceDetection(
@@ -107,10 +110,10 @@ class PoseEstimator:
         return frame
 
 
-if __name__ == "__main__":
+def main():
     vt = videotransition.VideoTransition("aespa", "savage")
-    pe = PoseEstimator(pose=True, face_mesh=True,
-                       face_detection=True, bounding_box=True)
+    pe = PoseEstimator(pose=False, face_mesh=True,
+                       face_detection=False, bounding_box=False)
     while True:
         if not vt.update_all_frames():
             break
@@ -121,3 +124,8 @@ if __name__ == "__main__":
         if not vt.display_frame(frame=frame):
             break
     print("Done")
+
+if __name__ == "__main__":
+    dump = cProfile.run("main()", "./cpff.pf")
+    p = pstats.Stats('./cpff.pf')
+    p.sort_stats("cumulative").print_stats(30)
